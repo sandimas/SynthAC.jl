@@ -25,7 +25,6 @@ using Literate
 
 makedocs(
     sitename = "SynthAC",
-    format = Documenter.HTML(),
     modules = [SynthAC],
     authors="James Neuhaus <jneuhau1@utk.edu>",
     repo="https://github.com/sandimas/SynthAC.jl",
