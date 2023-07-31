@@ -35,10 +35,10 @@ makedocs(
         edit_link="main",
         assets=String[],
     ),
-    # pages=[
-    #     "Home" => "index.md",
+    pages=[
+        "Home" => "index.md",
     #     "Derivations" => "derivations.md",
-    # ],
+    ],
     draft = false
 
     
