@@ -1,0 +1,13 @@
+name = "SynthAC"
+uuid = "77c8f6cd-c8b5-463b-94ec-40679ab23a6e"
+authors = ["sandimas <james.neuhaus@gmail.com> and contributors"]
+version = "1.0.0-DEV"
+
+[compat]
+julia = "1"
+
+[extras]
+Test = "8dfed614-e22c-5e08-85e1-65c5234f0b40"
+
+[targets]
+test = ["Test"]
