@@ -23,7 +23,7 @@ using Literate
 
 
 
-makedocs(
+makedocs(;
     sitename = "SynthAC",
     modules = [SynthAC],
     authors="James Neuhaus <jneuhau1@utk.edu>",
