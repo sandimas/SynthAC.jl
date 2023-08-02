@@ -5,7 +5,7 @@ using FileIO
 using Distributions
 using Random
 
-# Write your package code here.
+
 include("main.jl")
 
 export GenerateCorrelationFunctions

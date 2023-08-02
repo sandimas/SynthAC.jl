@@ -12,7 +12,7 @@ function NormalizeDistributions(Distribution,fermionic,Maxω)
         zeroth_moment, err = quadgk(x -> Distribution(x),-Maxω,Maxω)
         return x -> Distribution(x) / zeroth_moment
     else
-        return x -> 0
+        return x -> Distribution(x)
     end
 end
 
@@ -23,7 +23,7 @@ function CalculateCorrelationFunctions(total_dist,τs,β,fermionic,Maxω)
         if fermionic
             dist = x -> total_dist(x) *  exp_τ(τ)(x) * n_fermi(β)(x)    
         else
-            # TODO
+            dist = x -> ifelse(x≈0.0,total_dist(x)/β, 0.5 * x * (exp_τ(τ)(x)+exp_τ(β-τ)(x)) * (total_dist(x)+total_dist(-x)) * n_bose(β)(x))
         end
         G_calc[τi], _ = quadgk(x-> dist(x),-Maxω,Maxω)
     end
@@ -48,7 +48,7 @@ function AddNoise(G_calc,NBins,AutoCorrelationTime,σ0,τs)
             num = sum(σ0js .* exp.(-abs.(τ .- τs) ./ ξ))
             σs[τi] = num/denom
         end
-        G_binned[:,bin] = G_calc .+ σs
+        G_binned[:,bin] = abs.(G_calc .+ σs)
     end    
     return G_binned
 end

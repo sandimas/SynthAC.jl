@@ -24,7 +24,7 @@ using Literate
 
 
 makedocs(;
-    sitename = "SynthAC",
+    sitename = "SynthAC.jl",
     modules = [SynthAC],
     authors="James Neuhaus <jneuhau1@utk.edu>",
     repo="https://github.com/sandimas/SynthAC.jl",
@@ -46,7 +46,7 @@ makedocs(;
 # Documenter can also automatically deploy documentation to gh-pages.
 # See "Hosting Documentation" and deploydocs() in the Documenter manual
 # for more information.
-deploydocs(
+deploydocs(;
     repo = "github.com/sandimas/SynthAC.jl",
     devbrach="main",
 

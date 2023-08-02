@@ -14,3 +14,7 @@ function exp_τ(τ)
     return x -> exp(-x*τ)
 end
 
+function n_bose(β)
+    return x -> 1.0 / (1-exp(-x*β))
+end
+
