@@ -27,7 +27,7 @@ Hui Shao, Yan Qi Qin, Sylvain Capponi, Stefano Chesi, Zi Yang Meng, and Anders W
 - `"τs"`: Imaginary time grid
 - `"ξ"`: Autocorrelation Time
 - `"σ0"`: Tuneable uncorrelated standard error parameter    
-- `"G"`: Array of dimensions [size(τs,1),NBins]
+- `"G"`: Array of dimensions [NBins,size(τs,1)]
 - `"G_calc"`: Reference correlation function without noise
 """
 function GenerateCorrelationFunctions(DistributionArray,β,Δτ,fermionic;
@@ -48,9 +48,12 @@ function GenerateCorrelationFunctions(DistributionArray,β,Δτ,fermionic;
     else
         out_dist = x -> x*(total_dist(x)+total_dist(-x))
     end
+    ωs = LinRange(-Maxω,Maxω,401)
+    A_out = out_dist.(ωs)
 
     out_dict = Dict{String,Any}(
-        "A" => out_dist,
+        "A" => A_out,
+        "ωs" => ωs,
         "τs" => τs,
         "ξ" => AutoCorrelationTime,
         "β" => β,

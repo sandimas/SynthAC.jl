@@ -32,7 +32,7 @@ end
 
 function AddNoise(G_calc,NBins,AutoCorrelationTime,σ0,τs)
     nτ = size(G_calc,1)
-    G_binned = zeros(Float64,(nτ,NBins))
+    G_binned = zeros(Float64,(NBins,nτ))
     ξ = AutoCorrelationTime
     seed = abs(rand(Int))
     rng = Xoshiro(seed)
@@ -48,7 +48,7 @@ function AddNoise(G_calc,NBins,AutoCorrelationTime,σ0,τs)
             num = sum(σ0js .* exp.(-abs.(τ .- τs) ./ ξ))
             σs[τi] = num/denom
         end
-        G_binned[:,bin] = abs.(G_calc .+ σs)
+        G_binned[bin,:] = abs.(G_calc .+ σs)
     end    
     return G_binned
 end
