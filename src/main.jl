@@ -19,6 +19,7 @@ Hui Shao, Yan Qi Qin, Sylvain Capponi, Stefano Chesi, Zi Yang Meng, and Anders W
 - `AutoCorrelationTime`: Auto correlation length in imaginary time
 - `σ0`: Tuneable parameter to increase/decrease variance in correlation functions
 - `Maxω`: range to integrate over. (-∞,∞) is not yet supported, and exponential values in kernels limit range possible 
+- `Blurtype`: Either `"gamma"` or `"absgauss"`. `"gamma"` uses a gamma distribution which does not go below zero. `"absgauss"` uses a normal distribution and takes the absolute value 
 
 # Returns
 `Dict{String,Any}(...)` containing the keys
@@ -31,7 +32,7 @@ Hui Shao, Yan Qi Qin, Sylvain Capponi, Stefano Chesi, Zi Yang Meng, and Anders W
 - `"G_calc"`: Reference correlation function without noise
 """
 function GenerateCorrelationFunctions(DistributionArray,β,Δτ,fermionic;
-                                 outfile="",NBins=100,AutoCorrelationTime=0.5,σ0=0.005,Maxω=10.0)
+                                 outfile="",NBins=100,AutoCorrelationTime=0.5,σ0=0.005,Maxω=10.0,Blurtype="gamma")
     nτ = trunc(Int,β/Δτ)+1
     τs = LinRange(0.0,β,nτ)
     
@@ -41,7 +42,7 @@ function GenerateCorrelationFunctions(DistributionArray,β,Δτ,fermionic;
     
     G_calc = CalculateCorrelationFunctions(total_dist,τs,β,fermionic,Maxω)
 
-    G_bins = AddNoise(G_calc,NBins,AutoCorrelationTime,σ0,τs)
+    G_bins = AddNoise(G_calc,NBins,AutoCorrelationTime,σ0,τs,Blurtype)
 
     if fermionic
         out_dist = x -> total_dist(x)
