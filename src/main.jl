@@ -19,30 +19,49 @@ Hui Shao, Yan Qi Qin, Sylvain Capponi, Stefano Chesi, Zi Yang Meng, and Anders W
 - `AutoCorrelationTime`: Auto correlation length in imaginary time
 - `σ0`: Tuneable parameter to increase/decrease variance in correlation functions
 - `Maxω`: range to integrate over. (-∞,∞) is not yet supported, and exponential values in kernels limit range possible 
+- `Nωn`: Number of Matsubara frequency points
 - `Blurtype`: Either `"gamma"` or `"absgauss"`. `"gamma"` uses a gamma distribution which does not go below zero. `"absgauss"` uses a normal distribution and takes the absolute value 
 
 # Returns
 `Dict{String,Any}(...)` containing the keys
-- `"A"`: Anonymous function to generate real axis data
+- `"A"`: True distribution
+- `"ωs": Grid of ω values for A
 - `"β"`: Inverse temperature
 - `"τs"`: Imaginary time grid
+- `"ωns"`: Matsubara frequency grid
 - `"ξ"`: Autocorrelation Time
 - `"σ0"`: Tuneable uncorrelated standard error parameter    
-- `"G"`: Array of dimensions [NBins,size(τs,1)]
-- `"G_calc"`: Reference correlation function without noise
+- `"Gτ"`: Array of dimensions [NBins,size(τs,1)]
+- `"Gτ_calc"`: Reference correlation function without noise
+- `"Gωn"`: Array of dimensions [NBins,size(ωns,1)]
+- `"Gωn_calc"`: Reference correlation function without noise
+
 """
 function GenerateCorrelationFunctions(DistributionArray,β,Δτ,fermionic;
-                                 outfile="",NBins=100,AutoCorrelationTime=0.5,σ0=0.005,Maxω=10.0,Blurtype="gamma")
+                                 outfile="",NBins=100,AutoCorrelationTime=0.5,
+                                 σ0=0.005,Maxω=10.0,Blurtype="gamma",Nωn = 200)
+    # Get matsubara arrays
     nτ = trunc(Int,β/Δτ)+1
     τs = LinRange(0.0,β,nτ)
-    
+    ωns = get_ωn(Nωn,β,fermionic)
+
+    # Merge functions
     total_dist = MergeDistributions(DistributionArray)
     
     total_dist= NormalizeDistributions(total_dist,fermionic,Maxω)
     
-    G_calc = CalculateCorrelationFunctions(total_dist,τs,β,fermionic,Maxω)
+    Gτ_calc = CalculateCorrelationFunctions(total_dist,τs,β,fermionic,Maxω)
 
-    G_bins = AddNoise(G_calc,NBins,AutoCorrelationTime,σ0,τs,Blurtype)
+    Gτ_bins = AddNoise(Gτ_calc,NBins,AutoCorrelationTime,σ0,τs,Blurtype)
+
+
+    Gω_calc = τ_to_ωn(Gτ_calc, τs,fermionic,Nωn)
+    
+    Gω_bins = zeros(ComplexF64,(NBins,Nωn))#AddNoise(Gω_calc,NBins,AutoCorrelationTime * 2 * π * β,σ0 ,ωns,Blurtype)
+
+    for bin in 1:NBins
+        Gω_bins[bin,:] = τ_to_ωn(Gτ_bins[bin,:], τs,fermionic,Nωn)
+    end
 
     if fermionic
         out_dist = x -> total_dist(x)
@@ -59,8 +78,11 @@ function GenerateCorrelationFunctions(DistributionArray,β,Δτ,fermionic;
         "ξ" => AutoCorrelationTime,
         "β" => β,
         "σ0" => σ0,
-        "G" => G_bins,
-        "G_calc" => G_calc
+        "Gτ" => Gτ_bins,
+        "Gτ_calc" => Gτ_calc,
+        "Gω" => Gω_bins,
+        "Gω_calc" => Gω_calc,
+        "ωns" => ωns
     )
     if outfile != ""
         save(outfile,out_dict)
