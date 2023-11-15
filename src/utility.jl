@@ -16,7 +16,7 @@ function NormalizeDistributions(Distribution,fermionic,Maxω)
     end
 end
 
-function CalculateCorrelationFunctions(total_dist,τs,β,fermionic,Maxω)
+function CalculateCorrelationFunctionsτ(total_dist,τs,β,fermionic,Maxω)
     G_calc = zeros(Float64,size(τs,1))
     for (τi, τ) in enumerate(τs)
         dist = x -> 0
@@ -32,30 +32,14 @@ end
 
 
 
-function AddNoise(G_calc,NBins,AutoCorrelationTime,σ0,τs,Blurtype)
+function AddNoise(G_calc,NBins,AutoCorrelationTime,σ0,τs,Blurtype,sumrule)
     nτ = size(G_calc,1)
     G_binned = zeros(eltype(G_calc),(NBins,nτ))
     ξ = AutoCorrelationTime
     seed = abs(rand(Int))
     rng = Xoshiro(seed)
-   
-    if Blurtype == "absgauss"
-        for bin in 1:NBins
-            σ0js = zeros(Float64,nτ)
-            σs = zeros(Float64,nτ)    
-            σ_min = min.(σ0,G_calc .* 0.5)
-            for (τi, τ) in enumerate(τs)
-                σ0js[τi] = rand(rng,Distributions.Normal(0.0,σ_min[τi]))
-            end
-            for (τi, τ) in enumerate(τs)
-                denom = sqrt(sum(exp.(-2 .* abs.(τ .- τs) ./ ξ)))
-                num = sum(σ0js .* exp.(-abs.(τ .- τs) ./ ξ))
-                σs[τi] = num/denom
-            end
-            G_binned[bin,:] = abs.(G_calc .+ σs)
-        end
-    else
-        G_norm = norm(G_calc)
+    if Blurtype == "gamma"
+        G_norm = norm.(G_calc)
         αs, θs = get_Γ_params((G_norm),σ0)
         for bin in 1:NBins
             σ0js = zeros(Float64,nτ)
@@ -69,6 +53,33 @@ function AddNoise(G_calc,NBins,AutoCorrelationTime,σ0,τs,Blurtype)
                 σs[τi] = num/denom
             end
             G_binned[bin,:] = G_calc .+ (σs .* G_calc ./ G_norm)
+            if sumrule
+                G_binned[bin,end] = 1.0 - G_binned[bin,1]
+            end
+        end
+    
+    else
+
+        for bin in 1:NBins
+            σ0js = zeros(Float64,nτ)
+            σs = zeros(Float64,nτ)    
+            σ_min =@. min(σ0,norm(G_calc) .* 0.5)
+            for (τi, τ) in enumerate(τs)
+                σ0js[τi] = rand(rng,Distributions.Normal(0.0,σ_min[τi]))
+            end
+            for (τi, τ) in enumerate(τs)
+                denom = sqrt(sum(exp.(-2 .* abs.(τ .- τs) ./ ξ)))
+                num = sum(σ0js .* exp.(-abs.(τ .- τs) ./ ξ))
+                σs[τi] = num/denom
+            end
+            
+            G_binned[bin,:] = (G_calc .+ σ_factor(G_calc, σs))
+            if sumrule
+                G_binned[bin,end] = 1.0 - G_binned[bin,1]
+            end
+        end
+        if Blurtype == "absgauss"
+            @. G_binned = abs(G_binned)
         end
     end   
     
@@ -84,7 +95,7 @@ end
 function get_Γ_params(G_calc,σ0)
     # keep σ < G_calc or distro goes bad
     σs = zeros(Float64,size(G_calc,1))
-    σs = min.(σ0,real.(G_calc) .* 0.5)
+    σs = min.(σ0,norm.(G_calc) .* 0.5)
     # σs .= σ0
     θs = σs.^2 ./ G_calc
     αs = G_calc.^2 ./ σs.^2
@@ -102,11 +113,13 @@ end
 
 
 
-function τ_to_ωn(G,τs, isFermi, Nωn)
+function τ_to_ωn_fermion(G,τs, Nωn)
+    isFermi = true
     β=τs[end]
     
     Euv = 1.0
     rtol = 1e-12
+    # symmetry = 
     symmetry = :none
 
     dlr = DLRGrid(Euv, β, rtol, isFermi, symmetry)
@@ -116,4 +129,20 @@ function τ_to_ωn(G,τs, isFermi, Nωn)
     Gωn = tau2matfreq(dlr, -G, ngrid, τs)
 
     return Gωn
+    
+end
+
+function σ_factor(vals,σ)
+    return σ .* vals ./ norm.(vals)
+end
+
+function CorrelationFunctionsBosonic_ωn(total_dist,ωns,Maxω)
+    G_calc = zeros(Float64,size(ωns,1))
+    for (ωni, ωn) in enumerate(ωns)
+        dist = x -> 0
+        dist = x -> ifelse(x≈0.0,-2.0 *total_dist(x),  x^2 * (total_dist(x)+total_dist(-x)) / (ωn^2 + x^2))
+        
+        G_calc[ωni], _ = quadgk(x-> dist(x),-Maxω,Maxω)
+    end
+    return G_calc
 end
