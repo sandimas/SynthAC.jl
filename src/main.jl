@@ -54,18 +54,11 @@ function GenerateCorrelationFunctions(DistributionArray,β,Δτ,fermionic;
 
     Gτ_bins = AddNoise(Gτ_calc,NBins,AutoCorrelationTime,σ0,τs,Blurtype,fermionic)
 
-    if fermionic
-        Gω_calc = τ_to_ωn(Gτ_calc, τs,Nωn)
-    else
-        Gω_calc = CorrelationFunctionsBosonic_ωn(total_dist,ωns,Maxω)
-    end
     
-    # Gω_bins = zeros(ComplexF64,(NBins,Nωn))
+    Gω_calc = τ_to_ωn(Gτ_calc, τs,Nωn,fermionic)
+    
+    
     Gω_bins = AddNoise(Gω_calc,NBins,AutoCorrelationTime * 10 * π / β,σ0 * 0.1,ωns,"gauss",false)
-
-    # for bin in 1:NBins
-    #     Gω_bins[bin,:] = τ_to_ωn(Gτ_bins[bin,:], τs,fermionic,Nωn)
-    # end
 
     if fermionic
         out_dist = x -> total_dist(x)
@@ -86,7 +79,8 @@ function GenerateCorrelationFunctions(DistributionArray,β,Δτ,fermionic;
         "Gτ_calc" => Gτ_calc,
         "Gω" => Gω_bins,
         "Gω_calc" => Gω_calc,
-        "ωns" => ωns
+        "ωns" => ωns,
+        # "Gω_calc_leh" => Gω_calc2
     )
     if outfile != ""
         save(outfile,out_dict)

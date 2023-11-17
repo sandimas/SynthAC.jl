@@ -4,7 +4,6 @@ using QuadGK
 using FileIO
 using Distributions
 using Random
-using NumericalIntegration
 using Lehmann
 
 include("main.jl")

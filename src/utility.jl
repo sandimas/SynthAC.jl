@@ -113,36 +113,27 @@ end
 
 
 
-function τ_to_ωn_fermion(G,τs, Nωn)
-    isFermi = true
+function τ_to_ωn(G,τs, Nωn,isFermi)
+    symmetry = (isFermi) ? :none : :ph
+    # sign = (isFermi) ? -1.0 : 1.0
     β=τs[end]
     
     Euv = 1.0
     rtol = 1e-12
     # symmetry = 
     symmetry = :none
-
     dlr = DLRGrid(Euv, β, rtol, isFermi, symmetry)
 
     ngrid = collect(0:Nωn-1)
 
-    Gωn = tau2matfreq(dlr, -G, ngrid, τs)
-
+    Gωn = tau2matfreq(dlr,  G, ngrid, τs)
+    if !isFermi
+        Gωn = real.(Gωn)
+    end
     return Gωn
     
 end
 
 function σ_factor(vals,σ)
     return σ .* vals ./ norm.(vals)
-end
-
-function CorrelationFunctionsBosonic_ωn(total_dist,ωns,Maxω)
-    G_calc = zeros(Float64,size(ωns,1))
-    for (ωni, ωn) in enumerate(ωns)
-        dist = x -> 0
-        dist = x -> ifelse(x≈0.0,-2.0 *total_dist(x),  x^2 * (total_dist(x)+total_dist(-x)) / (ωn^2 + x^2))
-        
-        G_calc[ωni], _ = quadgk(x-> dist(x),-Maxω,Maxω)
-    end
-    return G_calc
 end
