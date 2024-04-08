@@ -52,13 +52,13 @@ function GenerateCorrelationFunctions(DistributionArray,β,Δτ,fermionic;
     
     Gτ_calc = CalculateCorrelationFunctionsτ(total_dist,τs,β,fermionic,Maxω)
 
-    Gτ_bins = AddNoise(Gτ_calc,NBins,AutoCorrelationTime,σ0,τs,Blurtype,fermionic)
+    Gτ_bins = AddNoise(Gτ_calc,NBins,AutoCorrelationTime,σ0,τs,Blurtype,fermionic,true)
 
     
     Gω_calc = τ_to_ωn(Gτ_calc, τs,Nωn,fermionic)
     
     
-    Gω_bins = AddNoise(Gω_calc,NBins,AutoCorrelationTime * 10 * π / β,σ0 * 0.1,ωns,"gauss",false)
+    Gω_bins = AddNoise(Gω_calc,NBins,AutoCorrelationTime * 10 * π / β,σ0 * 0.1,ωns,"gauss",false,false)
 
     if fermionic
         out_dist = x -> total_dist(x)

@@ -32,7 +32,7 @@ end
 
 
 
-function AddNoise(G_calc,NBins,AutoCorrelationTime,σ0,τs,Blurtype,sumrule)
+function AddNoise(G_calc,NBins,AutoCorrelationTime,σ0,τs,Blurtype,fermionic,imagtime)
     nτ = size(G_calc,1)
     G_binned = zeros(eltype(G_calc),(NBins,nτ))
     ξ = AutoCorrelationTime
@@ -53,9 +53,18 @@ function AddNoise(G_calc,NBins,AutoCorrelationTime,σ0,τs,Blurtype,sumrule)
                 σs[τi] = num/denom
             end
             G_binned[bin,:] = G_calc .+ (σs .* G_calc ./ G_norm)
-            if sumrule
-                G_binned[bin,end] = 1.0 - G_binned[bin,1]
+            if imagtime
+                if fermionic
+                    G_binned[bin,end] = 1.0 - G_binned[bin,1]
+                else
+                    b2 = div(nτ + 1,2)
+                    for τi in 1:b2-1
+                        G_binned[bin,nτ+1-τi] = G_binned[bin,τi] 
+                    end
+
+                end
             end
+            
         end
     
     else
@@ -74,9 +83,19 @@ function AddNoise(G_calc,NBins,AutoCorrelationTime,σ0,τs,Blurtype,sumrule)
             end
             
             G_binned[bin,:] = (G_calc .+ σ_factor(G_calc, σs))
-            if sumrule
-                G_binned[bin,end] = 1.0 - G_binned[bin,1]
+            if imagtime
+                if fermionic
+                    G_binned[bin,end] = 1.0 - G_binned[bin,1]
+                else
+                    b2 = div(nτ + 1,2)
+                    for τi in 1:b2-1
+                        G_binned[bin,nτ+1-τi] = G_binned[bin,τi] 
+                    end
+
+                end
             end
+            
+        end
         end
         if Blurtype == "absgauss"
             @. G_binned = abs(G_binned)
