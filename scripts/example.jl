@@ -10,16 +10,15 @@ Maxω = 10.0
 
 dict_data = GenerateCorrelationFunctions(distributions,10.0,0.05,true;outfile="",NBins=50,AutoCorrelationTime=0.4,σ0=0.005,Maxω=Maxω)
 
-A_func = dict_data["A"]
+A = dict_data["A"]
 τs = dict_data["τs"]
 β = dict_data["β"]
 AutoCorrelationTime = dict_data["ξ"]
 σ0 = dict_data["σ0"]
-G_bins = dict_data["G"]
-G_calc = dict_data["G_calc"]
+G_bins = dict_data["Gτ"]
+G_calc = dict_data["Gτ_calc"]
 
 ωs = LinRange(-Maxω,Maxω,200)
-A = A_func.(ωs)
 
 distributions_b = []
 AppendDistribution!(distributions_b,Normal(-1.2,0.5,A=1.2))

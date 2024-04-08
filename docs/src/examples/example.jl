@@ -47,8 +47,8 @@ Maxω = 10.0
 dict_data = GenerateCorrelationFunctions(distributions,10.0,0.05,true;outfile="",NBins=50,AutoCorrelationTime=0.4,σ0=0.005,Maxω=Maxω)
 
 # Example outputs
-#md ## Distribution generating function. Callable as `A_func(x)`
-A_func = dict_data["A"]
+#md ## Distribution generating function. 
+A = dict_data["A"]
 #md ## τs from 0.0 to β
 τs = dict_data["τs"]
 #md ## β at which the data was generated
@@ -58,13 +58,13 @@ AutoCorrelationTime = dict_data["ξ"]
 #md ## σ0 which is fed into the Gaussian random 
 σ0 = dict_data["σ0"]
 #md ## Binned noisy correlation function of shape [nτ,Nbins]
-G_bins = dict_data["G"]
+G_bins = dict_data["Gτ"]
 #md ## Noiseless correlation function of shape [nτ]
-G_calc = dict_data["G_calc"]
+G_calc = dict_data["Gτ_calc"]
 
 # Calling the distribution function to plot using your favorte plotting software
 ωs = LinRange(-Maxω,Maxω,200)
-A = A_func.(ωs)
+
 
 # Set up distributions for bosons
 distributions_b = []

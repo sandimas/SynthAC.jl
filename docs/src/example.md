@@ -11,27 +11,27 @@ Usage:
  Here we will use the two built in distributions and a a user defined [`anonymous function`](https://docs.julialang.org/en/v1/manual/functions/#man-anonymous-functions)
  to create a fermionic distribution. Then we will use two Gaussians (Normal) for a bosonic distribution.
 
-````@example example
+```@example example
 # Use SynthAC pacakge
 using SynthAC
-````
+```
 
 Create an empty array to add distributions
 
-````@example example
+```@example example
 distributions = []
-````
+```
 
 Create superposition of distributions.
 
-````@example example
+```@example example
 AppendDistribution!(distributions,Normal(-1.2,0.5,A=1.2))
 AppendDistribution!(distributions,Cauchy(1.0,0.25,A=0.5))
 AppendDistribution!(distributions,x -> min(1.0, 5.0 / (x-3.0)^2) )
 
 # Set the parameter for the range we will integrate over. Unfortunately, to allow user generated distributions the range of (-∞,∞) was not possible
 Maxω = 10.0
-````
+```
 
 Generate noisy correlation functions and return a dictionary.
 
@@ -55,15 +55,15 @@ Parameters fed in
 
 Note: fermionic distributions will always normalize to 1.0
 
-````@example example
+```@example example
 dict_data = GenerateCorrelationFunctions(distributions,10.0,0.05,true;outfile="",NBins=50,AutoCorrelationTime=0.4,σ0=0.005,Maxω=Maxω)
-````
+```
 
 Example outputs
 
-````@example example
-# Distribution generating function. Callable as `A_func(x)`
-A_func = dict_data["A"]
+```@example example
+# Distribution generating function.
+A = dict_data["A"]
 # τs from 0.0 to β
 τs = dict_data["τs"]
 # β at which the data was generated
@@ -73,25 +73,24 @@ AutoCorrelationTime = dict_data["ξ"]
 # σ0 which is fed into the Gaussian random
 σ0 = dict_data["σ0"]
 # Binned noisy correlation function of shape [nτ,Nbins]
-G_bins = dict_data["G"]
+G_bins = dict_data["Gτ"]
 # Noiseless correlation function of shape [nτ]
-G_calc = dict_data["G_calc"]
-````
+G_calc = dict_data["Gτ_calc"]
+```
 
 Calling the distribution function to plot using your favorte plotting software
 
-````@example example
+```@example example
 ωs = LinRange(-Maxω,Maxω,200)
-A = A_func.(ωs)
-````
+```
 
 Set up distributions for bosons
 
-````@example example
+```@example example
 distributions_b = []
 AppendDistribution!(distributions_b,Normal(-1.2,0.5,A=1.2))
 AppendDistribution!(distributions_b,Normal(4.2,0.5,A=0.5))
-````
+```
 
 Generate the noisy correlation functions for bosons
 
@@ -101,10 +100,10 @@ We do this for you by taking the distribution you enter, enforcing evenness, the
 
 We call `GenerateCorrelationFunctions` the same way
 
-````@example example
+```@example example
 dict_data_boson = GenerateCorrelationFunctions(distributions,10.0,0.05,false)
 # And your process/plot from here out as you'd like.
-````
+```
 
 ---
 

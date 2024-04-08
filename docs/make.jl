@@ -38,8 +38,7 @@ makedocs(;
         "Home" => "index.md",
         "Examples" => "example.md",
     ],
-    draft = false
-
+    
     
 )
 
