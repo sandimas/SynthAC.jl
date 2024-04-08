@@ -96,7 +96,7 @@ function AddNoise(G_calc,NBins,AutoCorrelationTime,σ0,τs,Blurtype,fermionic,im
             end
             
         end
-        end
+        
         if Blurtype == "absgauss"
             @. G_binned = abs(G_binned)
         end
