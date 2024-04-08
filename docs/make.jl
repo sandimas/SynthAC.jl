@@ -5,10 +5,10 @@ using Literate
 
 
 example_names = ["example"]
-example_literate_sources = [joinpath("src/examples/"*name*".jl") for name in example_names]
+example_literate_sources = [joinpath(@__DIR__,"src/examples/$name.jl") for name in example_names]
 example_script_destinations = [joinpath(@__DIR__,"../scripts") for name in example_names]
-example_documentation_destination = joinpath("src")
-example_documentation_paths = [joinpath("$name.md") for name in example_names]
+example_documentation_destination = joinpath(@__DIR__,"src/examples")
+example_documentation_paths = [("examples/$name.md") for name in example_names]
 
 
 
